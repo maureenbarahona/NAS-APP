@@ -1,0 +1,6 @@
+{
+  "name": "AstroTelemetry Explorer",
+  "description": "Deep-space mission telemetry, orbital ephemeris tracker, radio spectrographic analysis, and aerospace HUD flight deck.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
