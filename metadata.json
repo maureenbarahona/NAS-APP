@@ -1,6 +1,6 @@
 {
   "name": "AstroTelemetry Explorer",
-  "description": "Deep-space mission telemetry, orbital ephemeris tracker, radio spectrographic analysis, and aerospace HUD flight deck.",
+  "description": "Demo interactivo para NASA Space Apps Challenge por Maureen Barahona (maureenbarahona.foo). Telemetría de misiones espaciales y HUD aeroespacial.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }

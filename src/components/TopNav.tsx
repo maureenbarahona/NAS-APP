@@ -2,8 +2,8 @@ import React from 'react';
 import { Radio, Activity } from 'lucide-react';
 
 interface TopNavProps {
-  activeTab: 'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter' | 'docker';
-  onTabChange: (tab: 'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter' | 'docker') => void;
+  activeTab: 'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter';
+  onTabChange: (tab: 'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter') => void;
   isLiveDownlink: boolean;
   onToggleDownlink: () => void;
 }
@@ -32,7 +32,7 @@ export const TopNav: React.FC<TopNavProps> = ({
       </a>
 
       {/* Zone 2: Clean single-line text navigation links */}
-      <nav className="hidden lg:flex items-center gap-5 text-xs font-mono tracking-wider font-semibold">
+      <nav className="hidden lg:flex items-center gap-6 text-xs font-mono tracking-wider font-semibold">
         <button
           onClick={() => onTabChange('overview')}
           className={`whitespace-nowrap shrink-0 transition-colors uppercase py-1 ${
@@ -87,22 +87,21 @@ export const TopNav: React.FC<TopNavProps> = ({
         >
           Deep Sky Targeter
         </button>
-
-        <button
-          onClick={() => onTabChange('docker')}
-          className={`whitespace-nowrap shrink-0 transition-colors uppercase py-1 flex items-center gap-1.5 ${
-            activeTab === 'docker'
-              ? 'text-[#00e5ff] border-b-2 border-[#00e5ff]'
-              : 'text-[#bac9cc] hover:text-[#00e5ff]'
-          }`}
-        >
-          <span className="w-1.5 h-1.5 rounded-full bg-[#00e5ff]" />
-          <span>Docker Deploy Arch</span>
-        </button>
       </nav>
 
-      {/* Zone 3: 1 Primary Action */}
+      {/* Zone 3: 1 Primary Action + Author Link */}
       <div className="flex items-center gap-3 shrink-0">
+        <a
+          href="https://maureenbarahona.foo"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#00e5ff]/10 hover:bg-[#00e5ff]/20 text-[#c3f5ff] hover:text-[#00e5ff] border border-[#00e5ff]/30 text-xs font-mono font-semibold transition-all"
+          title="Demo desarrollado por Maureen Barahona para NASA Space Apps Challenge"
+        >
+          <span>NASA Space Apps Demo</span>
+          <span className="text-[10px] text-[#00e5ff]">↗</span>
+        </a>
+
         <button
           onClick={onToggleDownlink}
           className={`btn-flight-cyan px-3.5 py-1.5 rounded flex items-center gap-2 text-xs font-semibold whitespace-nowrap shrink-0 ${

@@ -11,13 +11,12 @@ import { OrbitalEphemerisStage } from './components/OrbitalEphemerisStage';
 import { FlightSequencer } from './components/FlightSequencer';
 import { SubsystemsMatrix } from './components/SubsystemsMatrix';
 import { MissionEventLog } from './components/MissionEventLog';
-import { DockerDeployConsole } from './components/DockerDeployConsole';
 import { Compass, Radio, Flame, Target, Cpu, Activity, Info } from 'lucide-react';
 
 export default function App() {
   const [spacecraftList, setSpacecraftList] = useState<Spacecraft[]>(INITIAL_SPACECRAFT);
   const [selectedId, setSelectedId] = useState<string>('jwst');
-  const [activeTab, setActiveTab] = useState<'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter' | 'docker'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter'>('overview');
   const [isLiveDownlink, setIsLiveDownlink] = useState<boolean>(true);
   const [selectedTarget, setSelectedTarget] = useState<CelestialTarget | null>(null);
 
@@ -130,6 +129,34 @@ export default function App() {
 
       {/* Viewport Content Area */}
       <main className="flex-1 p-4 lg:p-6 max-w-[1600px] w-full mx-auto flex flex-col gap-6">
+        {/* NASA Space Apps Challenge Demo Attribution Banner */}
+        <div className="w-full bg-[#0b0e17]/95 border border-[#00e5ff]/30 rounded-lg p-3 sm:px-4 sm:py-3 flex flex-wrap items-center justify-between gap-3 text-xs font-mono shadow-[0_0_20px_rgba(0,229,255,0.08)]">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="w-2.5 h-2.5 rounded-full bg-[#00e5ff] shadow-[0_0_8px_#00e5ff] animate-pulse" />
+            <span className="label-caps text-[#00e5ff] tracking-wider font-bold text-xs">
+              NASA SPACE APPS CHALLENGE DEMO
+            </span>
+            <span className="text-[#8a99ad] hidden sm:inline">|</span>
+            <span className="text-[#bac9cc] text-xs">
+              Deep-Space Telemetry & Aerospace Mission Control
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-[#8a99ad]">Creado por:</span>
+            <a
+              href="https://maureenbarahona.foo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-3 py-1 bg-[#00e5ff]/15 hover:bg-[#00e5ff] text-[#00e5ff] hover:text-[#040711] border border-[#00e5ff]/50 rounded font-bold transition-all flex items-center gap-1.5 shadow-[0_0_10px_rgba(0,229,255,0.25)]"
+              title="Visitar maureenbarahona.foo"
+            >
+              <span>Maureen Barahona</span>
+              <span className="text-[11px] underline opacity-90">maureenbarahona.foo ↗</span>
+            </a>
+          </div>
+        </div>
+
         {/* TAB 1: OVERVIEW (Full Aerospace HUD Dashboard) */}
         {activeTab === 'overview' && (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
@@ -468,25 +495,32 @@ export default function App() {
             </div>
           </div>
         )}
-
-        {/* TAB 6: DOCKER CLEAN CODE & DEPLOY ARCHITECTURE */}
-        {activeTab === 'docker' && (
-          <DockerDeployConsole />
-        )}
       </main>
 
       {/* Footer bar */}
-      <footer className="w-full bg-[#040711] border-t border-[#00e5ff]/15 px-6 py-3 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-[#8a99ad]">
-        <div className="flex items-center gap-3">
+      <footer className="w-full bg-[#040711] border-t border-[#00e5ff]/20 px-6 py-4 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-[#8a99ad]">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <span className="text-white font-semibold">ASTROTELEMETRY EXPLORER</span>
           <span>·</span>
-          <span>FLIGHT SYSTEMS CALIBRATION HUD</span>
+          <span className="text-[#00e5ff] font-semibold">Demo para NASA Space Apps Challenge</span>
+          <span>·</span>
+          <span>
+            Creado por{' '}
+            <a
+              href="https://maureenbarahona.foo"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[#c3f5ff] hover:text-[#00e5ff] underline font-bold transition-colors"
+            >
+              Maureen Barahona (maureenbarahona.foo) ↗
+            </a>
+          </span>
         </div>
 
         <div className="flex items-center gap-4 text-[11px]">
           <span>DSN METRIC: NOMINAL</span>
           <span>·</span>
-          <span className="text-[#00e5ff]">AEROSPACE GLASSMORPHIC INTERFACE</span>
+          <span className="text-[#00e5ff]">AEROSPACE GLASSMORPHIC HUD</span>
         </div>
       </footer>
     </div>
