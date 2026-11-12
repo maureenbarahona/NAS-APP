@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, Layers, ShieldCheck, Activity, Copy, Check, Terminal, Cpu, FileCode, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export const DockerDeployConsole: React.FC = () => {
-  const [activeFile, setActiveFile] = useState<'dockerfile' | 'dockerignore' | 'dockercompose' | 'server'>('dockerfile');
+  const [activeFile, setActiveFile] = useState<'dockerfile' | 'npmrc' | 'dockerignore' | 'dockercompose' | 'server'>('dockerfile');
   const [copied, setCopied] = useState<boolean>(false);
   const [healthStatus, setHealthStatus] = useState<{
     status: string;
@@ -24,11 +24,11 @@ RUN apk add --no-cache tini curl
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000
 
-# 2. Dependencies Stage: Layer caching
+# 2. Dependencies Stage: Layer caching + ERESOLVE protection
 FROM base AS dependencies
 WORKDIR /app
-COPY package.json package-lock.json* bun.lock* ./
-RUN npm install --include=dev --prefer-offline --no-audit
+COPY package.json package-lock.json* bun.lock* .npmrc* ./
+RUN npm install --include=dev --legacy-peer-deps --no-audit
 
 # 3. Builder Stage: Compile Vite static assets
 FROM dependencies AS builder
@@ -41,8 +41,8 @@ RUN npm run build
 # 4. Production Dependencies: Pruned runtime packages
 FROM base AS prod-deps
 WORKDIR /app
-COPY package.json package-lock.json* bun.lock* ./
-RUN npm install --omit=dev --prefer-offline --no-audit && \\
+COPY package.json package-lock.json* bun.lock* .npmrc* ./
+RUN npm install --omit=dev --legacy-peer-deps --no-audit && \\
     npm cache clean --force
 
 # 5. Runner Stage: Least privilege non-root container
@@ -64,6 +64,15 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \\
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "--import", "tsx", "server.ts"]`,
+
+    npmrc: `# ==============================================================================
+# NPM CONFIGURATION BEST PRACTICES FOR DOCKER & CI/CD
+# Soluciona el error ERESOLVE (conflictos de peer dependencies en React 19 / Vite 8)
+# ==============================================================================
+legacy-peer-deps=true
+audit=false
+fund=false
+update-notifier=false`,
 
     dockerignore: `# Dependencies & Build artifacts
 node_modules
@@ -281,6 +290,16 @@ process.on('SIGINT', () => shutdown('SIGINT'));`,
                 }`}
               >
                 Dockerfile
+              </button>
+              <button
+                onClick={() => setActiveFile('npmrc')}
+                className={`px-3 py-1 rounded transition-colors font-semibold ${
+                  activeFile === 'npmrc'
+                    ? 'bg-[#00e5ff]/20 text-[#00e5ff] border border-[#00e5ff]'
+                    : 'text-[#8a99ad] hover:text-white border border-transparent'
+                }`}
+              >
+                .npmrc (Fix ERESOLVE)
               </button>
               <button
                 onClick={() => setActiveFile('dockerignore')}

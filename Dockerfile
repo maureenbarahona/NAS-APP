@@ -32,12 +32,12 @@ FROM base AS dependencies
 
 WORKDIR /app
 
-# Copy dependency definition files first to leverage Docker build cache
-COPY package.json package-lock.json* bun.lock* ./
+# Copy dependency definition files and npm configuration first to leverage Docker build cache
+COPY package.json package-lock.json* bun.lock* .npmrc* ./
 
 # Install ALL dependencies (including devDependencies required for Vite & TypeScript build)
-# Clean install with frozen lockfile ensures reproducibility
-RUN npm install --include=dev --prefer-offline --no-audit
+# Clean install with legacy-peer-deps flag ensures zero-break builds across React 19 / Vite 8
+RUN npm install --include=dev --legacy-peer-deps --no-audit
 
 # ------------------------------------------------------------------------------
 # Stage 3: Build Layer (Compile TypeScript & Vite static bundle)
@@ -61,10 +61,10 @@ FROM base AS prod-deps
 
 WORKDIR /app
 
-COPY package.json package-lock.json* bun.lock* ./
+COPY package.json package-lock.json* bun.lock* .npmrc* ./
 
 # Install strictly production dependencies to keep the image minimal and secure
-RUN npm install --omit=dev --prefer-offline --no-audit && \
+RUN npm install --omit=dev --legacy-peer-deps --no-audit && \
     npm cache clean --force
 
 # ------------------------------------------------------------------------------
