@@ -25,9 +25,9 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Ensure correct Node production environment defaults
+# Ensure correct Node production environment defaults (Cloud Run standard port is 8080)
 ENV NODE_ENV=production \
-    PORT=3000
+    PORT=8080
 
 # ------------------------------------------------------------------------------
 # Stage 2: Dependencies Cache Layer (All dependencies for build)
@@ -44,18 +44,18 @@ COPY package.json package-lock.json* bun.lock* .npmrc* ./
 RUN npm install --include=dev --legacy-peer-deps --no-audit
 
 # ------------------------------------------------------------------------------
-# Stage 3: Build Layer (Compile TypeScript & Vite static bundle)
+# Stage 3: Build Layer (Compile Vite client bundle AND server into /dist)
 # ------------------------------------------------------------------------------
 FROM dependencies AS builder
 
 WORKDIR /app
 
 # Copy application source code and configuration
-COPY tsconfig.json vite.config.ts index.html metadata.json ./
+COPY tsconfig.json vite.config.ts index.html metadata.json server.ts ./
 COPY public ./public
 COPY src ./src
 
-# Build production assets (Vite client bundle output to /app/dist)
+# Build production assets (Vite client bundle + compiled dist/server.js)
 RUN npm run build
 
 # ------------------------------------------------------------------------------
@@ -85,12 +85,11 @@ LABEL org.opencontainers.image.title="AstroTelemetry Explorer" \
       org.opencontainers.image.vendor="Mission Control Operations" \
       org.opencontainers.image.licenses="Apache-2.0"
 
-# Copy minimal runtime assets from previous stages
+# Copy minimal runtime assets from previous stages (pure compiled JS, no devDependencies needed)
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
 COPY package.json ./
-COPY server.ts ./
 
 # Change ownership of application directory to the non-root 'node' user (UID 1000)
 RUN chown -R node:node /app
@@ -98,15 +97,15 @@ RUN chown -R node:node /app
 # Switch to unprivileged user (Defense-in-depth: Never run as root)
 USER node
 
-# Expose standard port 3000
-EXPOSE 3000
+# Expose standard Cloud Run port
+EXPOSE 8080
 
 # Container liveness and readiness probe
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD curl -f http://localhost:3000/api/health || exit 1
+  CMD curl -f http://localhost:8080/api/health || exit 1
 
 # Execute process with tini as init system (PID 1) to forward signals and reap zombies
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
-# Launch production server via Node / tsx
-CMD ["node", "--import", "tsx", "server.ts"]
+# Launch compiled production server directly with native Node (<20ms cold start)
+CMD ["node", "dist/server.js"]

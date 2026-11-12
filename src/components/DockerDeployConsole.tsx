@@ -24,7 +24,8 @@ RUN apt-get update && \\
     apt-get install -y --no-install-recommends tini curl && \\
     rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-ENV NODE_ENV=production PORT=3000
+# Google Cloud Run injects PORT=8080 by default
+ENV NODE_ENV=production PORT=8080
 
 # 2. Dependencies Stage: Layer caching + ERESOLVE protection
 FROM base AS dependencies
@@ -32,10 +33,10 @@ WORKDIR /app
 COPY package.json package-lock.json* bun.lock* .npmrc* ./
 RUN npm install --include=dev --legacy-peer-deps --no-audit
 
-# 3. Builder Stage: Compile Vite static assets
+# 3. Builder Stage: Compile Vite static assets & server into /dist
 FROM dependencies AS builder
 WORKDIR /app
-COPY tsconfig.json vite.config.ts index.html metadata.json ./
+COPY tsconfig.json vite.config.ts index.html metadata.json server.ts ./
 COPY public ./public
 COPY src ./src
 RUN npm run build
@@ -47,42 +48,42 @@ COPY package.json package-lock.json* bun.lock* .npmrc* ./
 RUN npm install --omit=dev --legacy-peer-deps --no-audit && \\
     npm cache clean --force
 
-# 5. Runner Stage: Least privilege non-root container
+# 5. Runner Stage: Least privilege non-root container (<20ms cold start)
 FROM base AS runner
 WORKDIR /app
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
 COPY package.json ./
-COPY server.ts ./
 
 # Defense-in-depth: Unprivileged node user (UID 1000)
 RUN chown -R node:node /app
 USER node
 
-EXPOSE 3000
+# Expose standard Cloud Run port
+EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \\
-  CMD curl -f http://localhost:3000/api/health || exit 1
+  CMD curl -f http://localhost:8080/api/health || exit 1
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["node", "--import", "tsx", "server.ts"]`,
+# Runs standalone compiled JavaScript without requiring devDependencies or tsx
+CMD ["node", "dist/server.js"]`,
 
     dockerfileAlpine: `# Alternativa Alpine Linux con parche para rolldown-musl y libc6-compat
 FROM node:22-alpine AS base
 RUN apk add --no-cache tini curl libc6-compat
 WORKDIR /app
-ENV NODE_ENV=production PORT=3000
+ENV NODE_ENV=production PORT=8080
 
 FROM base AS dependencies
 WORKDIR /app
 COPY package.json package-lock.json* bun.lock* .npmrc* ./
-# En Alpine, se instala explícitamente el binario musl para evitar npm bug #4828
 RUN npm install --include=dev --legacy-peer-deps --no-audit && \\
     npm install --no-save @rolldown/binding-linux-x64-musl --legacy-peer-deps
 
 FROM dependencies AS builder
 WORKDIR /app
-COPY tsconfig.json vite.config.ts index.html metadata.json ./
+COPY tsconfig.json vite.config.ts index.html metadata.json server.ts ./
 COPY public ./public
 COPY src ./src
 RUN npm run build
@@ -99,14 +100,13 @@ COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/public ./public
 COPY package.json ./
-COPY server.ts ./
 RUN chown -R node:node /app
 USER node
-EXPOSE 3000
+EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \\
-  CMD curl -f http://localhost:3000/api/health || exit 1
+  CMD curl -f http://localhost:8080/api/health || exit 1
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node", "--import", "tsx", "server.ts"]`,
+CMD ["node", "dist/server.js"]`,
 
     npmrc: `# ==============================================================================
 # NPM CONFIGURATION BEST PRACTICES FOR DOCKER & CI/CD

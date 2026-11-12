@@ -20,8 +20,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = parseInt(process.env.PORT || '3000', 10);
-const HOST = '0.0.0.0';
+// Cloud Run injects PORT=8080 by default; local environments fallback gracefully
+const PORT = parseInt(process.env.PORT || '8080', 10);
+const HOST = '0.0.0.0'; // Essential for Cloud Run: must bind to all interfaces
 const startTime = Date.now();
 
 // -----------------------------------------------------------------------------
@@ -38,9 +39,9 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
 });
 
 // -----------------------------------------------------------------------------
-// 2. Healthcheck & Observability Endpoints (Probes for Docker/K8s)
+// 2. Healthcheck & Observability Endpoints (Cloud Run, K8s & Docker Probes)
 // -----------------------------------------------------------------------------
-app.get('/api/health', (_req: Request, res: Response) => {
+const healthHandler = (_req: Request, res: Response) => {
   const memoryUsage = process.memoryUsage();
   
   const healthData = {
@@ -61,12 +62,20 @@ app.get('/api/health', (_req: Request, res: Response) => {
   };
 
   res.status(200).json(healthData);
-});
+};
+
+// Aliases for any container orchestrator probe convention
+app.get('/api/health', healthHandler);
+app.get('/health', healthHandler);
+app.get('/healthz', healthHandler);
 
 // -----------------------------------------------------------------------------
 // 3. Static Assets & Client-Side SPA Routing
 // -----------------------------------------------------------------------------
-const distPath = path.resolve(__dirname, 'dist');
+// Resolves distPath whether running from root via tsx or from /dist/server.js
+const distPath = fs.existsSync(path.join(__dirname, 'index.html'))
+  ? __dirname
+  : path.resolve(__dirname, 'dist');
 const indexHtmlPath = path.join(distPath, 'index.html');
 
 if (fs.existsSync(distPath)) {
