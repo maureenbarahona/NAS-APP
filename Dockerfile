@@ -1,23 +1,27 @@
 # ==============================================================================
 # ASTROTELEMETRY EXPLORER - PRODUCTION MULTI-STAGE DOCKERFILE
 # Architecture: Clean Architecture / Multi-Stage Build / Least Privilege
+# Base Image: node:22-slim (Debian Bookworm - Standard glibc)
+#
 # Best Practices:
-#   1. Multi-stage build (reduces final image size by ~85%)
-#   2. Deterministic pinned base image (node:22-alpine)
+#   1. glibc runtime: Resolves npm bug #4828 & @rolldown native bindings in Alpine
+#   2. Multi-stage build (reduces final image size by ~80%)
 #   3. Layer caching: package manifests copied before source code
 #   4. Least privilege execution: non-root unprivileged user ('node')
-#   5. PID 1 signal forwarding & zombie reaping via tini
+#   5. PID 1 signal forwarding & zombie reaping via tini (/usr/bin/tini)
 #   6. Native HEALTHCHECK probe for zero-downtime orchestration
 #   7. Immutable build-time artifact decoupling from runtime environment
 # ==============================================================================
 
 # ------------------------------------------------------------------------------
-# Stage 1: Base Configuration
+# Stage 1: Base Configuration (Debian Slim with glibc)
 # ------------------------------------------------------------------------------
-FROM node:22-alpine AS base
+FROM node:22-slim AS base
 
-# Install tini for graceful PID 1 signal management (SIGTERM/SIGINT)
-RUN apk add --no-cache tini curl
+# Install tini for graceful PID 1 signal management (SIGTERM/SIGINT) and curl for healthcheck
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends tini curl && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -102,7 +106,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
 
 # Execute process with tini as init system (PID 1) to forward signals and reap zombies
-ENTRYPOINT ["/sbin/tini", "--"]
+ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Launch production server via Node / tsx
 CMD ["node", "--import", "tsx", "server.ts"]

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, Layers, ShieldCheck, Activity, Copy, Check, Terminal, Cpu, FileCode, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export const DockerDeployConsole: React.FC = () => {
-  const [activeFile, setActiveFile] = useState<'dockerfile' | 'npmrc' | 'dockerignore' | 'dockercompose' | 'server'>('dockerfile');
+  const [activeFile, setActiveFile] = useState<'dockerfile' | 'dockerfileAlpine' | 'npmrc' | 'dockerignore' | 'dockercompose' | 'server'>('dockerfile');
   const [copied, setCopied] = useState<boolean>(false);
   const [healthStatus, setHealthStatus] = useState<{
     status: string;
@@ -18,9 +18,11 @@ export const DockerDeployConsole: React.FC = () => {
   const [isPinging, setIsPinging] = useState<boolean>(false);
 
   const fileContents = {
-    dockerfile: `# 1. Base Stage: Node 22 Alpine + tini + curl
-FROM node:22-alpine AS base
-RUN apk add --no-cache tini curl
+    dockerfile: `# 1. Base Stage: Node 22 Debian Slim (glibc nativo - Resuelve error Rolldown/Musl)
+FROM node:22-slim AS base
+RUN apt-get update && \\
+    apt-get install -y --no-install-recommends tini curl && \\
+    rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 ENV NODE_ENV=production PORT=3000
 
@@ -62,6 +64,47 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \\
   CMD curl -f http://localhost:3000/api/health || exit 1
 
+ENTRYPOINT ["/usr/bin/tini", "--"]
+CMD ["node", "--import", "tsx", "server.ts"]`,
+
+    dockerfileAlpine: `# Alternativa Alpine Linux con parche para rolldown-musl y libc6-compat
+FROM node:22-alpine AS base
+RUN apk add --no-cache tini curl libc6-compat
+WORKDIR /app
+ENV NODE_ENV=production PORT=3000
+
+FROM base AS dependencies
+WORKDIR /app
+COPY package.json package-lock.json* bun.lock* .npmrc* ./
+# En Alpine, se instala explícitamente el binario musl para evitar npm bug #4828
+RUN npm install --include=dev --legacy-peer-deps --no-audit && \\
+    npm install --no-save @rolldown/binding-linux-x64-musl --legacy-peer-deps
+
+FROM dependencies AS builder
+WORKDIR /app
+COPY tsconfig.json vite.config.ts index.html metadata.json ./
+COPY public ./public
+COPY src ./src
+RUN npm run build
+
+FROM base AS prod-deps
+WORKDIR /app
+COPY package.json package-lock.json* bun.lock* .npmrc* ./
+RUN npm install --omit=dev --legacy-peer-deps --no-audit && \\
+    npm cache clean --force
+
+FROM base AS runner
+WORKDIR /app
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+COPY package.json ./
+COPY server.ts ./
+RUN chown -R node:node /app
+USER node
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \\
+  CMD curl -f http://localhost:3000/api/health || exit 1
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "--import", "tsx", "server.ts"]`,
 
@@ -219,9 +262,9 @@ process.on('SIGINT', () => shutdown('SIGINT'));`,
           {[
             {
               stage: 'STAGE 1: BASE',
-              image: 'node:22-alpine',
-              desc: 'Tini init system + curl',
-              badge: 'Minimal OS',
+              image: 'node:22-slim',
+              desc: 'Debian glibc + tini + curl',
+              badge: 'Zero Musl Bugs',
               color: 'border-[#8a99ad]/30',
             },
             {
@@ -247,7 +290,7 @@ process.on('SIGINT', () => shutdown('SIGINT'));`,
             },
             {
               stage: 'STAGE 5: RUNNER',
-              image: 'USER node (~98 MB)',
+              image: 'USER node (~110 MB)',
               desc: 'Healthcheck + non-root',
               badge: 'Final Secure Image',
               color: 'border-[#00e5ff] bg-[#00e5ff]/10',
@@ -289,7 +332,17 @@ process.on('SIGINT', () => shutdown('SIGINT'));`,
                     : 'text-[#8a99ad] hover:text-white border border-transparent'
                 }`}
               >
-                Dockerfile
+                Dockerfile (Slim)
+              </button>
+              <button
+                onClick={() => setActiveFile('dockerfileAlpine')}
+                className={`px-3 py-1 rounded transition-colors font-semibold ${
+                  activeFile === 'dockerfileAlpine'
+                    ? 'bg-[#00e5ff]/20 text-[#00e5ff] border border-[#00e5ff]'
+                    : 'text-[#8a99ad] hover:text-white border border-transparent'
+                }`}
+              >
+                Dockerfile.alpine (Fix)
               </button>
               <button
                 onClick={() => setActiveFile('npmrc')}
@@ -299,7 +352,7 @@ process.on('SIGINT', () => shutdown('SIGINT'));`,
                     : 'text-[#8a99ad] hover:text-white border border-transparent'
                 }`}
               >
-                .npmrc (Fix ERESOLVE)
+                .npmrc
               </button>
               <button
                 onClick={() => setActiveFile('dockerignore')}

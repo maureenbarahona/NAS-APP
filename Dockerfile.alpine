@@ -1,0 +1,48 @@
+# ==============================================================================
+# ALTERNATIVA ALPINE LINUX: ASTROTELEMETRY EXPLORER DOCKERFILE
+# Utilizar solo si tu infraestructura requiere estrictamente Alpine Linux.
+# Soluciona el error npm bug #4828 instalando libc6-compat y la binding musl.
+# ==============================================================================
+
+FROM node:22-alpine AS base
+RUN apk add --no-cache tini curl libc6-compat
+WORKDIR /app
+ENV NODE_ENV=production PORT=3000
+
+FROM base AS dependencies
+WORKDIR /app
+COPY package.json package-lock.json* bun.lock* .npmrc* ./
+# En Alpine, instalamos explícitamente el binario nativo de Rolldown para musl
+RUN npm install --include=dev --legacy-peer-deps --no-audit && \
+    npm install --no-save @rolldown/binding-linux-x64-musl --legacy-peer-deps
+
+FROM dependencies AS builder
+WORKDIR /app
+COPY tsconfig.json vite.config.ts index.html metadata.json ./
+COPY public ./public
+COPY src ./src
+RUN npm run build
+
+FROM base AS prod-deps
+WORKDIR /app
+COPY package.json package-lock.json* bun.lock* .npmrc* ./
+RUN npm install --omit=dev --legacy-peer-deps --no-audit && \
+    npm cache clean --force
+
+FROM base AS runner
+WORKDIR /app
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/public ./public
+COPY package.json ./
+COPY server.ts ./
+
+RUN chown -R node:node /app
+USER node
+
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+ENTRYPOINT ["/sbin/tini", "--"]
+CMD ["node", "--import", "tsx", "server.ts"]

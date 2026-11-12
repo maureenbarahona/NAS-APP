@@ -8,13 +8,13 @@ Esta guía detalla la arquitectura limpia, modular y de nivel producción para c
 
 ### 1.1 Principio de Responsabilidad Única (SRP) en Multi-Stage Builds
 Un solo archivo `Dockerfile` divide sus etapas con propósitos aislados e independientes:
-1. **`base`**: Imagen base mínima (`node:22-alpine`) con herramientas de sistema mínimas (`tini`, `curl`).
+1. **`base`**: Imagen base mínima oficial (`node:22-slim` con Debian Bookworm) con `tini` y `curl`. Utiliza `glibc` estándar para garantizar compatibilidad total con binarios nativos en Rust/C++ (Vite 8, Rolldown, esbuild) y evitar el bug de npm #4828 presente en Alpine.
 2. **`dependencies`**: Descarga e instalación de dependencias completas (incluidas `devDependencies` para compilar TypeScript y Vite).
 3. **`builder`**: Compilación de la aplicación estática y de servidor.
 4. **`prod-deps`**: Instalación limpia únicamente de librerías de producción (`--omit=dev`).
 5. **`runner`**: Contenedor final hiper-ligero (sin herramientas de compilación, sin código fuente TypeScript, solo artefactos compilados y dependencias de producción).
 
-*Resultado:* El tamaño final de la imagen se reduce de **~1.2 GB** a menos de **120 MB**, eliminando vulnerabilidades en herramientas de desarrollo.
+*Resultado:* El tamaño final de la imagen se reduce de **~1.2 GB** a menos de **110 MB**, eliminando vulnerabilidades en herramientas de desarrollo.
 
 ---
 
