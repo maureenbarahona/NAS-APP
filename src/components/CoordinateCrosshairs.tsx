@@ -26,6 +26,16 @@ export const CoordinateCrosshairs: React.FC<CoordinateCrosshairsProps> = ({
     setIsLocked(false);
   };
 
+  const handleCanvasTouch = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 0) return;
+    const touch = e.touches[0];
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = touch.clientX - rect.left - rect.width / 2;
+    const y = touch.clientY - rect.top - rect.height / 2;
+    setReticleOffset({ x, y });
+    setIsLocked(false);
+  };
+
   const handleLockTarget = (target: CelestialTarget) => {
     onSelectTarget(target);
     setReticleOffset({ x: 0, y: 0 });
@@ -53,22 +63,22 @@ export const CoordinateCrosshairs: React.FC<CoordinateCrosshairsProps> = ({
         </div>
       </div>
 
-      {/* Target Selector Bar */}
-      <div className="flex flex-wrap gap-1.5">
+      {/* Target Selector Bar with 44px touch targets */}
+      <div className="flex flex-wrap gap-2">
         {targets.map((t) => {
           const isSelected = selected.id === t.id && isLocked;
           return (
             <button
               key={t.id}
               onClick={() => handleLockTarget(t)}
-              className={`px-2.5 py-1 text-left font-mono text-xs rounded transition-all flex items-center gap-2 ${
+              className={`min-h-[44px] px-3.5 py-2 text-left font-mono text-xs rounded transition-all flex items-center gap-2 touch-manipulation ${
                 isSelected
                   ? 'bg-[#7c4dff]/25 text-[#f1e9ff] border border-[#7c4dff] shadow-[0_0_10px_rgba(124,77,255,0.3)]'
                   : 'bg-[#040711]/60 text-[#8a99ad] hover:text-white border border-white/10 hover:border-white/25'
               }`}
             >
-              <Target className={`w-3 h-3 ${isSelected ? 'text-[#00e5ff]' : 'text-[#8a99ad]'}`} />
-              <span className="truncate max-w-[150px]">{t.name}</span>
+              <Target className={`w-3.5 h-3.5 shrink-0 ${isSelected ? 'text-[#00e5ff]' : 'text-[#8a99ad]'}`} />
+              <span className="truncate max-w-[160px] font-medium">{t.name}</span>
             </button>
           );
         })}
@@ -77,7 +87,8 @@ export const CoordinateCrosshairs: React.FC<CoordinateCrosshairsProps> = ({
       {/* Astronomical Celestial Map Stage with Minimalist Reticle Overlay */}
       <div
         onClick={handleCanvasClick}
-        className="relative w-full h-72 bg-[#040711] rounded border border-[#7c4dff]/25 overflow-hidden cursor-crosshair group"
+        onTouchStart={handleCanvasTouch}
+        className="relative w-full h-72 sm:h-80 bg-[#040711] rounded border border-[#7c4dff]/25 overflow-hidden cursor-crosshair group touch-none"
       >
         {/* Starfield simulation background */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[#10132b]/40 via-[#040711] to-[#040711]" />

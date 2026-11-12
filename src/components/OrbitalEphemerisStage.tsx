@@ -213,7 +213,7 @@ export const OrbitalEphemerisStage: React.FC<OrbitalEphemerisStageProps> = ({ sp
   }, [isPlaying, viewMode, orbitAngle, zoom, spacecraft]);
 
   return (
-    <div className="hud-panel p-4 rounded flex flex-col gap-3">
+    <div className="hud-panel p-3 sm:p-4 rounded flex flex-col gap-3">
       {/* Viewport Top Bar Controls */}
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#00e5ff]/20 pb-2">
         <div className="flex items-center gap-2">
@@ -228,13 +228,13 @@ export const OrbitalEphemerisStage: React.FC<OrbitalEphemerisStageProps> = ({ sp
         </div>
 
         {/* View Mode & Zoom Controls */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center p-0.5 bg-[#040711]/80 rounded border border-white/10 text-[10px] font-mono">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center p-1 bg-[#040711]/80 rounded border border-white/10 text-xs font-mono">
             <button
               onClick={() => setViewMode('oblique')}
-              className={`px-2 py-0.5 rounded transition-colors ${
+              className={`min-h-[38px] px-3 py-1 rounded transition-colors touch-manipulation font-semibold ${
                 viewMode === 'oblique'
-                  ? 'bg-[#00e5ff]/20 text-[#00e5ff] font-semibold'
+                  ? 'bg-[#00e5ff]/20 text-[#00e5ff]'
                   : 'text-[#8a99ad] hover:text-white'
               }`}
             >
@@ -242,19 +242,19 @@ export const OrbitalEphemerisStage: React.FC<OrbitalEphemerisStageProps> = ({ sp
             </button>
             <button
               onClick={() => setViewMode('topDown')}
-              className={`px-2 py-0.5 rounded transition-colors ${
+              className={`min-h-[38px] px-3 py-1 rounded transition-colors touch-manipulation font-semibold ${
                 viewMode === 'topDown'
-                  ? 'bg-[#00e5ff]/20 text-[#00e5ff] font-semibold'
+                  ? 'bg-[#00e5ff]/20 text-[#00e5ff]'
                   : 'text-[#8a99ad] hover:text-white'
               }`}
             >
-              TOP-DOWN (POLAR)
+              POLAR
             </button>
             <button
               onClick={() => setViewMode('side')}
-              className={`px-2 py-0.5 rounded transition-colors ${
+              className={`min-h-[38px] px-3 py-1 rounded transition-colors touch-manipulation font-semibold ${
                 viewMode === 'side'
-                  ? 'bg-[#00e5ff]/20 text-[#00e5ff] font-semibold'
+                  ? 'bg-[#00e5ff]/20 text-[#00e5ff]'
                   : 'text-[#8a99ad] hover:text-white'
               }`}
             >
@@ -264,24 +264,26 @@ export const OrbitalEphemerisStage: React.FC<OrbitalEphemerisStageProps> = ({ sp
 
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="p-1.5 rounded bg-[#0b0e17] border border-white/10 text-[#00e5ff] hover:bg-[#00e5ff]/20 transition-colors"
+            className="min-h-[44px] min-w-[44px] p-2 rounded bg-[#0b0e17] border border-white/10 text-[#00e5ff] hover:bg-[#00e5ff]/20 transition-colors flex items-center justify-center touch-manipulation"
             title={isPlaying ? 'Pause orbital propagation' : 'Resume propagation'}
+            aria-label={isPlaying ? 'Pause orbital propagation' : 'Resume propagation'}
           >
-            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+            {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </button>
 
           <button
             onClick={() => setZoom((z) => Math.max(0.6, Math.min(1.8, z === 1 ? 1.4 : 1)))}
-            className="p-1.5 rounded bg-[#0b0e17] border border-white/10 text-[#8a99ad] hover:text-white transition-colors"
+            className="min-h-[44px] min-w-[44px] p-2 rounded bg-[#0b0e17] border border-white/10 text-[#8a99ad] hover:text-white transition-colors flex items-center justify-center touch-manipulation"
             title="Toggle Zoom"
+            aria-label="Toggle zoom scale"
           >
-            <Maximize2 className="w-3.5 h-3.5" />
+            <Maximize2 className="w-4 h-4" />
           </button>
         </div>
       </div>
 
       {/* Main Canvas Viewport */}
-      <div className="relative w-full h-80 bg-[#040711] rounded border border-white/10 overflow-hidden">
+      <div className="relative w-full h-72 sm:h-80 md:h-96 bg-[#040711] rounded border border-white/10 overflow-hidden">
         <canvas
           ref={canvasRef}
           width={800}

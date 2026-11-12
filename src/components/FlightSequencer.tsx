@@ -117,7 +117,7 @@ export const FlightSequencer: React.FC<FlightSequencerProps> = ({
               key={vec}
               disabled={isBurning}
               onClick={() => setBurnVector(vec)}
-              className={`py-2 px-3 text-center font-mono text-xs font-semibold rounded border transition-all ${
+              className={`min-h-[44px] py-2 px-3 text-center font-mono text-xs font-semibold rounded border transition-all flex items-center justify-center touch-manipulation ${
                 burnVector === vec
                   ? 'bg-[#ff5c00]/20 text-[#ff5c00] border-[#ff5c00] shadow-[0_0_12px_rgba(255,92,0,0.3)]'
                   : 'bg-[#040711]/70 text-[#8a99ad] hover:text-white border-white/10'
@@ -149,20 +149,20 @@ export const FlightSequencer: React.FC<FlightSequencerProps> = ({
           value={deltaV}
           disabled={isBurning}
           onChange={(e) => setDeltaV(parseFloat(e.target.value))}
-          className="w-full accent-[#ff5c00] bg-white/10 h-1.5 rounded cursor-pointer"
+          className="w-full accent-[#ff5c00] bg-white/10 h-2 sm:h-1.5 rounded cursor-pointer touch-none"
         />
 
-        <div className="flex items-center justify-between text-[11px] font-mono text-[#8a99ad]">
-          <span>Fine Trim (+1.0 m/s)</span>
-          <div className="flex items-center gap-1.5">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono text-[#8a99ad]">
+          <span>Presets:</span>
+          <div className="flex items-center gap-1.5 flex-wrap">
             {[5, 15, 30, 60, 100].map((val) => (
               <button
                 key={val}
                 disabled={isBurning}
                 onClick={() => setDeltaV(val)}
-                className="px-2 py-0.5 bg-[#0b0e17] hover:bg-[#ff5c00]/20 text-[#e0e2ef] hover:text-[#ff5c00] border border-white/10 rounded transition-colors"
+                className="min-h-[38px] px-3 py-1 bg-[#0b0e17] hover:bg-[#ff5c00]/20 text-[#e0e2ef] hover:text-[#ff5c00] border border-white/10 rounded transition-colors touch-manipulation font-semibold"
               >
-                {val}
+                {val} m/s
               </button>
             ))}
           </div>

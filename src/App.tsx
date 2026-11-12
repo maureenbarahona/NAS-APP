@@ -11,6 +11,7 @@ import { OrbitalEphemerisStage } from './components/OrbitalEphemerisStage';
 import { FlightSequencer } from './components/FlightSequencer';
 import { SubsystemsMatrix } from './components/SubsystemsMatrix';
 import { MissionEventLog } from './components/MissionEventLog';
+import { MobileBottomNav } from './components/MobileBottomNav';
 import { Compass, Radio, Flame, Target, Cpu, Activity, Info } from 'lucide-react';
 
 export default function App() {
@@ -128,10 +129,10 @@ export default function App() {
       <TelemetryRibbon spacecraft={currentSpacecraft} />
 
       {/* Viewport Content Area */}
-      <main className="flex-1 p-4 lg:p-6 max-w-[1600px] w-full mx-auto flex flex-col gap-6">
+      <main className="flex-1 p-3 sm:p-4 lg:p-6 pb-24 lg:pb-8 max-w-[1600px] w-full mx-auto flex flex-col gap-4 sm:gap-6">
         {/* NASA Space Apps Challenge Demo Attribution Banner */}
-        <div className="w-full bg-[#0b0e17]/95 border border-[#00e5ff]/30 rounded-lg p-3 sm:px-4 sm:py-3 flex flex-wrap items-center justify-between gap-3 text-xs font-mono shadow-[0_0_20px_rgba(0,229,255,0.08)]">
-          <div className="flex flex-wrap items-center gap-2.5">
+        <div className="w-full bg-[#0b0e17]/95 border border-[#00e5ff]/30 rounded-lg p-3 sm:px-4 sm:py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-mono shadow-[0_0_20px_rgba(0,229,255,0.08)]">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full bg-[#00e5ff] shadow-[0_0_8px_#00e5ff] animate-pulse" />
             <span className="label-caps text-[#00e5ff] tracking-wider font-bold text-xs">
               NASA SPACE APPS CHALLENGE DEMO
@@ -142,13 +143,13 @@ export default function App() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs">
+          <div className="flex items-center gap-2 text-xs w-full sm:w-auto justify-between sm:justify-end">
             <span className="text-[#8a99ad]">Creado por:</span>
             <a
               href="https://maureenbarahona.foo"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1 bg-[#00e5ff]/15 hover:bg-[#00e5ff] text-[#00e5ff] hover:text-[#040711] border border-[#00e5ff]/50 rounded font-bold transition-all flex items-center gap-1.5 shadow-[0_0_10px_rgba(0,229,255,0.25)]"
+              className="min-h-[44px] px-3.5 py-2 bg-[#00e5ff]/15 hover:bg-[#00e5ff] text-[#00e5ff] hover:text-[#040711] border border-[#00e5ff]/50 rounded font-bold transition-all flex items-center gap-1.5 shadow-[0_0_10px_rgba(0,229,255,0.25)] touch-manipulation"
               title="Visitar maureenbarahona.foo"
             >
               <span>Maureen Barahona</span>
@@ -159,18 +160,30 @@ export default function App() {
 
         {/* TAB 1: OVERVIEW (Full Aerospace HUD Dashboard) */}
         {activeTab === 'overview' && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Rail (3 cols): Spacecraft Selector & Orbit Track Vector Dial */}
-            <div className="lg:col-span-3 flex flex-col gap-6">
-              <div className="hud-panel p-4 rounded">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
+            {/* Spacecraft Selector (full width on tablet, 3 cols on desktop) */}
+            <div className="md:col-span-2 lg:col-span-3">
+              <div className="hud-panel p-3 sm:p-4 rounded">
                 <SpacecraftSelectorRail
                   spacecraftList={spacecraftList}
                   selectedId={selectedId}
                   onSelect={setSelectedId}
                 />
               </div>
+            </div>
 
-              <div className="hud-panel p-4 rounded flex flex-col gap-3">
+            {/* Primary Visualizer Stage (full width on tablet, 6 cols on desktop) */}
+            <div className="md:col-span-2 lg:col-span-6 flex flex-col gap-4 sm:gap-6">
+              <OrbitalEphemerisStage spacecraft={currentSpacecraft} />
+
+              <div className="hud-panel p-3 sm:p-4 rounded">
+                <SpectrumFrequencyWaveform spacecraft={currentSpacecraft} />
+              </div>
+            </div>
+
+            {/* Vector Dial (1 col on tablet, 3 cols on desktop) */}
+            <div className="md:col-span-1 lg:col-span-3">
+              <div className="hud-panel p-3 sm:p-4 rounded flex flex-col gap-3">
                 <div className="flex items-center justify-between border-b border-[#00e5ff]/20 pb-2">
                   <div className="flex items-center gap-2">
                     <Compass className="w-4 h-4 text-[#00e5ff]" />
@@ -185,31 +198,22 @@ export default function App() {
               </div>
             </div>
 
-            {/* Center Stage (6 cols): Orbital Ephemeris Canvas & Spectrum Waveform */}
-            <div className="lg:col-span-6 flex flex-col gap-6">
-              {/* Primary Visualizer Stage */}
-              <OrbitalEphemerisStage spacecraft={currentSpacecraft} />
-
-              {/* Spectrum Frequency Waveform */}
-              <div className="hud-panel p-4 rounded">
-                <SpectrumFrequencyWaveform spacecraft={currentSpacecraft} />
+            {/* Subsystems Matrix & Mission Log (spans cleanly on tablet & desktop) */}
+            <div className="md:col-span-2 lg:col-span-12 xl:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-6">
+              <div className="md:col-span-2 lg:col-span-7">
+                <SubsystemsMatrix
+                  spacecraft={currentSpacecraft}
+                  onUpdateSubsystems={handleUpdateSubsystems}
+                  onAddLog={handleAddLog}
+                />
               </div>
-            </div>
 
-            {/* Right Rail (3 cols): Subsystems Matrix & Mission Log */}
-            <div className="lg:col-span-3 flex flex-col gap-6">
-              {/* Subsystems Matrix */}
-              <SubsystemsMatrix
-                spacecraft={currentSpacecraft}
-                onUpdateSubsystems={handleUpdateSubsystems}
-                onAddLog={handleAddLog}
-              />
-
-              {/* Mission Event Log */}
-              <MissionEventLog
-                events={currentSpacecraft.log}
-                onAddManualEvent={handleAddLog}
-              />
+              <div className="md:col-span-2 lg:col-span-5">
+                <MissionEventLog
+                  events={currentSpacecraft.log}
+                  onAddManualEvent={handleAddLog}
+                />
+              </div>
             </div>
           </div>
         )}
@@ -498,7 +502,7 @@ export default function App() {
       </main>
 
       {/* Footer bar */}
-      <footer className="w-full bg-[#040711] border-t border-[#00e5ff]/20 px-6 py-4 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-[#8a99ad]">
+      <footer className="w-full bg-[#040711] border-t border-[#00e5ff]/20 px-4 sm:px-6 py-4 pb-20 lg:pb-4 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-[#8a99ad]">
         <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <span className="text-white font-semibold">ASTROTELEMETRY EXPLORER</span>
           <span>·</span>
@@ -510,7 +514,7 @@ export default function App() {
               href="https://maureenbarahona.foo"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[#c3f5ff] hover:text-[#00e5ff] underline font-bold transition-colors"
+              className="text-[#c3f5ff] hover:text-[#00e5ff] underline font-bold transition-colors py-1 inline-block"
             >
               Maureen Barahona (maureenbarahona.foo) ↗
             </a>
@@ -523,6 +527,9 @@ export default function App() {
           <span className="text-[#00e5ff]">AEROSPACE GLASSMORPHIC HUD</span>
         </div>
       </footer>
+
+      {/* Mobile & Tablet Fixed Bottom Navigation Bar */}
+      <MobileBottomNav activeTab={activeTab} onTabChange={setActiveTab} />
     </div>
   );
 }

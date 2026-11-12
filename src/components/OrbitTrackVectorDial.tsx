@@ -272,11 +272,11 @@ export const OrbitTrackVectorDial: React.FC<OrbitTrackVectorDialProps> = ({
       </div>
 
       {/* Orbit Controls Bar */}
-      <div className="w-full mt-3 flex items-center justify-between gap-2 px-2 py-1.5 bg-[#0b0e17]/60 border border-[#00e5ff]/15 rounded">
+      <div className="w-full mt-3 flex items-center justify-between gap-1.5 px-2.5 py-2 bg-[#0b0e17]/80 border border-[#00e5ff]/20 rounded">
         <div className="flex items-center gap-1">
           <button
             onClick={() => setIsPlaying(!isPlaying)}
-            className="px-2 py-0.5 text-[10px] font-mono uppercase rounded transition-colors border border-white/20 hover:border-[#00e5ff] text-[#e0e2ef]"
+            className="min-h-[38px] px-3 py-1 text-xs font-mono uppercase font-semibold rounded transition-colors border border-white/20 hover:border-[#00e5ff] text-[#e0e2ef] touch-manipulation flex items-center justify-center"
           >
             {isPlaying ? 'PAUSE' : 'RESUME'}
           </button>
@@ -287,7 +287,7 @@ export const OrbitTrackVectorDial: React.FC<OrbitTrackVectorDialProps> = ({
             <button
               key={spd}
               onClick={() => setSimSpeed(spd)}
-              className={`px-1.5 py-0.5 text-[10px] font-mono uppercase rounded transition-colors ${
+              className={`min-h-[38px] px-2.5 py-1 text-xs font-mono uppercase font-semibold rounded transition-colors touch-manipulation flex items-center justify-center ${
                 simSpeed === spd
                   ? 'bg-[#00e5ff]/20 text-[#00e5ff] border border-[#00e5ff]'
                   : 'text-[#8a99ad] hover:text-white border border-transparent'
@@ -300,7 +300,7 @@ export const OrbitTrackVectorDial: React.FC<OrbitTrackVectorDialProps> = ({
 
         <button
           onClick={() => setAnomaly(0)}
-          className="text-[10px] font-mono text-[#8a99ad] hover:text-[#00e5ff] transition-colors"
+          className="min-h-[38px] px-2.5 py-1 text-xs font-mono font-semibold text-[#8a99ad] hover:text-[#00e5ff] transition-colors touch-manipulation flex items-center justify-center"
           title="Reset to Periapsis"
         >
           RESET

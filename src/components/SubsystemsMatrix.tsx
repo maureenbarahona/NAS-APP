@@ -165,7 +165,7 @@ export const SubsystemsMatrix: React.FC<SubsystemsMatrixProps> = ({
 
             <button
               onClick={handleToggleStarTracker}
-              className="px-2 py-1 bg-[#0b0e17] border border-white/15 hover:border-[#00e5ff] rounded text-[10px] font-mono text-white transition-colors"
+              className="min-h-[44px] px-3.5 py-2 bg-[#0b0e17] border border-white/20 hover:border-[#00e5ff] rounded text-xs font-mono font-semibold text-white transition-colors touch-manipulation flex items-center justify-center shrink-0"
             >
               {subs.starTrackerLocked ? 'DISENGAGE' : 'RE-LOCK'}
             </button>
@@ -179,7 +179,7 @@ export const SubsystemsMatrix: React.FC<SubsystemsMatrixProps> = ({
 
       {/* 3-Axis Reaction Wheel Momentum Dials */}
       <div className="p-3 bg-[#040711]/80 rounded border border-white/10 flex flex-col gap-2">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <Disc className="w-3.5 h-3.5 text-[#00e5ff]" />
             <span className="label-caps text-[#8a99ad]">
@@ -190,18 +190,18 @@ export const SubsystemsMatrix: React.FC<SubsystemsMatrixProps> = ({
           <button
             onClick={handleDumpMomentum}
             disabled={isDumpingMomentum}
-            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-mono rounded transition-all ${
+            className={`min-h-[44px] flex items-center justify-center gap-1.5 px-3.5 py-2 text-xs font-mono font-semibold rounded transition-all touch-manipulation ${
               isDumpingMomentum
                 ? 'bg-[#ff5c00]/30 text-[#ff5c00] border border-[#ff5c00] animate-pulse'
                 : 'bg-[#0b0e17] text-[#00e5ff] border border-[#00e5ff]/40 hover:bg-[#00e5ff]/20'
             }`}
           >
-            <RefreshCw className={`w-3 h-3 ${isDumpingMomentum ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${isDumpingMomentum ? 'animate-spin' : ''}`} />
             <span>{isDumpingMomentum ? 'DUMPING RCS...' : 'DESATURATE (DUMP MOMENTUM)'}</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 pt-2">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 pt-2">
           {subs.reactionWheelsRpm.map((rpm, idx) => {
             const axis = idx === 0 ? 'X-AXIS (PITCH)' : idx === 1 ? 'Y-AXIS (YAW)' : 'Z-AXIS (ROLL)';
             const maxRpm = 4000;

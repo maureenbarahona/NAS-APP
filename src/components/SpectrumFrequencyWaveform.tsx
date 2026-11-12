@@ -144,25 +144,26 @@ export const SpectrumFrequencyWaveform: React.FC<SpectrumFrequencyWaveformProps>
         {/* Audio Demodulation Button */}
         <button
           onClick={() => setAudioEnabled(!audioEnabled)}
-          className={`flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-mono uppercase transition-colors ${
+          className={`flex items-center gap-1.5 px-3 py-1.5 min-h-[44px] rounded text-xs font-mono uppercase transition-colors touch-manipulation ${
             audioEnabled
               ? 'bg-[#00e5ff]/20 text-[#00e5ff] border border-[#00e5ff]'
               : 'text-[#8a99ad] hover:text-white border border-white/10'
           }`}
           title="Toggle RF demodulation tone monitor"
+          aria-label={audioEnabled ? 'Mute RF demodulation tone' : 'Enable RF demodulation audio tone'}
         >
-          {audioEnabled ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
+          {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
           <span>{audioEnabled ? 'DEMOD ON' : 'MUTE'}</span>
         </button>
       </div>
 
-      {/* Band Selector Tabs */}
+      {/* Band Selector Tabs with >=44px hit targets */}
       <div className="flex items-center gap-1.5 p-1 bg-[#040711]/80 rounded border border-white/10">
         {(['S-BAND', 'X-BAND', 'Ka-BAND', 'OPTICAL'] as RadioBand[]).map((b) => (
           <button
             key={b}
             onClick={() => handleBandChange(b)}
-            className={`flex-1 py-1 text-center font-mono text-[10px] uppercase font-semibold rounded transition-colors ${
+            className={`flex-1 min-h-[44px] py-2 px-1 text-center font-mono text-[11px] sm:text-xs uppercase font-semibold rounded transition-colors touch-manipulation flex items-center justify-center ${
               activeBand === b
                 ? 'bg-[#00e5ff]/20 text-[#00e5ff] border border-[#00e5ff]/60 shadow-[0_0_8px_rgba(0,229,255,0.3)]'
                 : 'text-[#8a99ad] hover:text-white'

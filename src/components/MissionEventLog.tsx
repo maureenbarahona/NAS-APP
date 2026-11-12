@@ -48,12 +48,12 @@ export const MissionEventLog: React.FC<MissionEventLogProps> = ({
         </div>
 
         {/* Subsystem Filter Chips */}
-        <div className="flex items-center gap-1 text-[10px] font-mono">
+        <div className="flex items-center gap-1.5 text-xs font-mono flex-wrap">
           {['ALL', 'COMM', 'NAV', 'PROP', 'PAYLOAD'].map((sub) => (
             <button
               key={sub}
               onClick={() => setFilter(sub)}
-              className={`px-1.5 py-0.5 rounded transition-colors ${
+              className={`min-h-[36px] px-2.5 py-1 rounded transition-colors touch-manipulation flex items-center justify-center font-medium ${
                 filter === sub
                   ? 'bg-[#00e5ff]/20 text-[#00e5ff] font-bold border border-[#00e5ff]/50'
                   : 'text-[#8a99ad] hover:text-white border border-transparent'
@@ -112,21 +112,21 @@ export const MissionEventLog: React.FC<MissionEventLogProps> = ({
       </div>
 
       {/* Flight Controller Command Uplink Form */}
-      <form onSubmit={handleSendCommand} className="flex items-center gap-2 pt-1 border-t border-white/10">
+      <form onSubmit={handleSendCommand} className="flex items-center gap-2 pt-2 border-t border-white/10">
         <div className="relative flex-1">
           <input
             type="text"
             value={commandInput}
             onChange={(e) => setCommandInput(e.target.value)}
-            placeholder="Transmit telecommand to spacecraft (e.g. DUMP_MOMENTUM, RECAL_STAR_TRACKER)..."
-            className="w-full bg-[#040711]/90 border border-white/15 focus:border-[#00e5ff] rounded px-3 py-1.5 font-mono text-xs text-white placeholder:text-[#8a99ad]/60 focus:outline-none transition-colors"
+            placeholder="Transmit telecommand to spacecraft (e.g. DUMP_MOMENTUM)..."
+            className="w-full min-h-[44px] bg-[#040711]/90 border border-white/15 focus:border-[#00e5ff] rounded px-3 py-2 font-mono text-xs text-white placeholder:text-[#8a99ad]/60 focus:outline-none transition-colors"
           />
         </div>
         <button
           type="submit"
-          className="btn-flight-cyan px-3 py-1.5 rounded flex items-center gap-1.5 font-mono text-xs"
+          className="btn-flight-cyan min-h-[44px] px-4 py-2 rounded flex items-center justify-center gap-1.5 font-mono text-xs font-semibold touch-manipulation shrink-0"
         >
-          <Send className="w-3 h-3 text-inherit" />
+          <Send className="w-3.5 h-3.5 text-inherit" />
           <span>UPLINK</span>
         </button>
       </form>

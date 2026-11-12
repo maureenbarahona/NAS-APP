@@ -35,7 +35,7 @@ export const TelemetryRibbon: React.FC<TelemetryRibbonProps> = ({ spacecraft }) 
   };
 
   return (
-    <div className="w-full bg-[#040711]/95 border-b border-[#00e5ff]/15 px-6 py-2 flex flex-wrap items-center justify-between gap-y-2 gap-x-6 text-[11px] font-mono select-none">
+    <div className="w-full bg-[#040711]/95 border-b border-[#00e5ff]/15 px-3 sm:px-6 py-2 flex items-center justify-between gap-y-2 gap-x-4 overflow-x-auto whitespace-nowrap scrollbar-none text-[11px] font-mono select-none">
       {/* Left: Spacecraft Identification & Status */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-1.5">

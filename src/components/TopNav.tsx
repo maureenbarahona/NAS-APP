@@ -15,7 +15,7 @@ export const TopNav: React.FC<TopNavProps> = ({
   onToggleDownlink,
 }) => {
   return (
-    <header className="flex items-center justify-between gap-8 px-6 py-3.5 bg-[#0b0e17]/90 backdrop-blur-xl border-b border-[#00e5ff]/20 sticky top-0 z-50">
+    <header className="flex items-center justify-between gap-3 sm:gap-8 px-3 sm:px-6 py-2.5 sm:py-3.5 bg-[#0b0e17]/95 backdrop-blur-xl border-b border-[#00e5ff]/20 sticky top-0 z-50">
       {/* Zone 1: Brand Wordmark (Single text element in Space Grotesk) */}
       <a
         href="#"
@@ -23,11 +23,11 @@ export const TopNav: React.FC<TopNavProps> = ({
           e.preventDefault();
           onTabChange('overview');
         }}
-        className="flex items-center gap-2.5 whitespace-nowrap shrink-0 group text-decoration-none"
+        className="flex items-center gap-2 whitespace-nowrap shrink-0 group text-decoration-none min-h-[44px]"
       >
         <div className="w-2.5 h-2.5 rounded-sm bg-[#00e5ff] shadow-[0_0_8px_#00e5ff] group-hover:scale-110 transition-transform" />
-        <span className="font-display font-bold text-lg tracking-tight text-white group-hover:text-[#c3f5ff] transition-colors">
-          ASTROTELEMETRY EXPLORER
+        <span className="font-display font-bold text-sm sm:text-lg tracking-tight text-white group-hover:text-[#c3f5ff] transition-colors">
+          ASTROTELEMETRY<span className="hidden xs:inline"> EXPLORER</span>
         </span>
       </a>
 
@@ -90,12 +90,12 @@ export const TopNav: React.FC<TopNavProps> = ({
       </nav>
 
       {/* Zone 3: 1 Primary Action + Author Link */}
-      <div className="flex items-center gap-3 shrink-0">
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <a
           href="https://maureenbarahona.foo"
           target="_blank"
           rel="noopener noreferrer"
-          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded bg-[#00e5ff]/10 hover:bg-[#00e5ff]/20 text-[#c3f5ff] hover:text-[#00e5ff] border border-[#00e5ff]/30 text-xs font-mono font-semibold transition-all"
+          className="hidden md:flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded bg-[#00e5ff]/10 hover:bg-[#00e5ff]/20 text-[#c3f5ff] hover:text-[#00e5ff] border border-[#00e5ff]/30 text-xs font-mono font-semibold transition-all"
           title="Demo desarrollado por Maureen Barahona para NASA Space Apps Challenge"
         >
           <span>NASA Space Apps Demo</span>
@@ -104,16 +104,18 @@ export const TopNav: React.FC<TopNavProps> = ({
 
         <button
           onClick={onToggleDownlink}
-          className={`btn-flight-cyan px-3.5 py-1.5 rounded flex items-center gap-2 text-xs font-semibold whitespace-nowrap shrink-0 ${
+          className={`btn-flight-cyan px-3 sm:px-3.5 py-2 min-h-[44px] rounded flex items-center gap-2 text-xs font-semibold whitespace-nowrap shrink-0 touch-manipulation ${
             !isLiveDownlink ? 'opacity-60 border-white/20 text-[#8a99ad]' : ''
           }`}
+          aria-label={isLiveDownlink ? 'Pause DSN Downlink' : 'Activate DSN Downlink'}
         >
           <span
-            className={`w-2 h-2 rounded-full ${
+            className={`w-2 h-2 rounded-full shrink-0 ${
               isLiveDownlink ? 'bg-[#00e5ff] shadow-[0_0_6px_#00e5ff] animate-pulse' : 'bg-[#8a99ad]'
             }`}
           />
-          <span>{isLiveDownlink ? 'DSN DOWNLINK ACTIVE' : 'DOWNLINK PAUSED'}</span>
+          <span className="hidden sm:inline">{isLiveDownlink ? 'DSN DOWNLINK ACTIVE' : 'DOWNLINK PAUSED'}</span>
+          <span className="sm:hidden">{isLiveDownlink ? 'DOWNLINK ACTIVE' : 'PAUSED'}</span>
         </button>
       </div>
     </header>
