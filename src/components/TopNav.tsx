@@ -2,8 +2,8 @@ import React from 'react';
 import { Radio, Activity } from 'lucide-react';
 
 interface TopNavProps {
-  activeTab: 'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter';
-  onTabChange: (tab: 'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter') => void;
+  activeTab: 'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter' | 'docker';
+  onTabChange: (tab: 'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter' | 'docker') => void;
   isLiveDownlink: boolean;
   onToggleDownlink: () => void;
 }
@@ -31,8 +31,8 @@ export const TopNav: React.FC<TopNavProps> = ({
         </span>
       </a>
 
-      {/* Zone 2: Clean 4–5 single-line text navigation links */}
-      <nav className="hidden lg:flex items-center gap-6 text-xs font-mono tracking-wider font-semibold">
+      {/* Zone 2: Clean single-line text navigation links */}
+      <nav className="hidden lg:flex items-center gap-5 text-xs font-mono tracking-wider font-semibold">
         <button
           onClick={() => onTabChange('overview')}
           className={`whitespace-nowrap shrink-0 transition-colors uppercase py-1 ${
@@ -41,7 +41,7 @@ export const TopNav: React.FC<TopNavProps> = ({
               : 'text-[#8a99ad] hover:text-white'
           }`}
         >
-          Flight Overview
+          Overview
         </button>
 
         <button
@@ -86,6 +86,18 @@ export const TopNav: React.FC<TopNavProps> = ({
           }`}
         >
           Deep Sky Targeter
+        </button>
+
+        <button
+          onClick={() => onTabChange('docker')}
+          className={`whitespace-nowrap shrink-0 transition-colors uppercase py-1 flex items-center gap-1.5 ${
+            activeTab === 'docker'
+              ? 'text-[#00e5ff] border-b-2 border-[#00e5ff]'
+              : 'text-[#bac9cc] hover:text-[#00e5ff]'
+          }`}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-[#00e5ff]" />
+          <span>Docker Deploy Arch</span>
         </button>
       </nav>
 

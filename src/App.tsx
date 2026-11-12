@@ -11,12 +11,13 @@ import { OrbitalEphemerisStage } from './components/OrbitalEphemerisStage';
 import { FlightSequencer } from './components/FlightSequencer';
 import { SubsystemsMatrix } from './components/SubsystemsMatrix';
 import { MissionEventLog } from './components/MissionEventLog';
+import { DockerDeployConsole } from './components/DockerDeployConsole';
 import { Compass, Radio, Flame, Target, Cpu, Activity, Info } from 'lucide-react';
 
 export default function App() {
   const [spacecraftList, setSpacecraftList] = useState<Spacecraft[]>(INITIAL_SPACECRAFT);
   const [selectedId, setSelectedId] = useState<string>('jwst');
-  const [activeTab, setActiveTab] = useState<'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'ephemeris' | 'spectrograph' | 'sequencer' | 'targeter' | 'docker'>('overview');
   const [isLiveDownlink, setIsLiveDownlink] = useState<boolean>(true);
   const [selectedTarget, setSelectedTarget] = useState<CelestialTarget | null>(null);
 
@@ -466,6 +467,11 @@ export default function App() {
               />
             </div>
           </div>
+        )}
+
+        {/* TAB 6: DOCKER CLEAN CODE & DEPLOY ARCHITECTURE */}
+        {activeTab === 'docker' && (
+          <DockerDeployConsole />
         )}
       </main>
 

@@ -1,0 +1,55 @@
+# ==============================================================================
+# DOCKERIGNORE BEST PRACTICES
+# Prevents sending unnecessary files to the Docker daemon build context.
+# Improves build speed, reduces layer sizes, and prevents leaking secrets.
+# ==============================================================================
+
+# Dependencies and caches
+node_modules
+.pnp
+.pnp.js
+.npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.eslintcache
+.stylelintcache
+
+# Build outputs
+dist
+dist-ssr
+build
+coverage
+*.tsbuildinfo
+
+# Environment variables & secrets (CRITICAL: Never bake secrets into image)
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.cert
+*.crt
+
+# Git and Version Control
+.git
+.gitignore
+.gitattributes
+.github
+
+# IDE & Editor metadata
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Documentation and temporary files
+docs
+README.md
+*.md
+.dockerignore
+Dockerfile*
+docker-compose*.yml

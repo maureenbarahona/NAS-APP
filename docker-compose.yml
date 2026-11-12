@@ -1,0 +1,62 @@
+# ==============================================================================
+# DOCKER COMPOSE - CLEAN ARCHITECTURE & PRODUCTION-PARITY LOCAL ORCHESTRATION
+# Best Practices:
+#   1. Explicit resource limits (CPU/Memory) preventing runaway processes
+#   2. Health check monitoring for zero-downtime rolling updates
+#   3. Security hardening (no-new-privileges, unprivileged user)
+#   4. Log rotation policy preventing unbounded disk exhaustion
+#   5. Network isolation on dedicated bridge network
+# ==============================================================================
+
+services:
+  astrotelemetry-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    image: astrotelemetry-explorer:latest
+    container_name: astrotelemetry-explorer
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+    
+    # Security Hardening
+    security_opt:
+      - no-new-privileges:true
+    user: "node"
+    
+    # Healthcheck configuration
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    # Resource Constraints (Prevents container from consuming entire host)
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 128M
+
+    # Logging policy to avoid disk filling
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+    networks:
+      - telemetry-network
+
+networks:
+  telemetry-network:
+    driver: bridge
+    name: astrotelemetry-net
